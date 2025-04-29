@@ -1,0 +1,130 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Tính Điểm Sương & Độ Ẩm Tuyệt Đối</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(to right, #83a4d4, #b6fbff);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+    h1 {
+      color: #00796b;
+      margin-bottom: 20px;
+      font-weight: 700;
+    }
+    .input-group {
+      position: relative;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .input-group img {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      width: 24px;
+      height: 24px;
+      opacity: 0.7;
+    }
+    .input-group input {
+      width: 100%;
+      padding: 10px 10px 10px 40px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    .input-group input:focus {
+      border-color: #00796b;
+    }
+    .result {
+      background: #e0f7fa;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+      font-size: 18px;
+      color: #00796b;
+    }
+    .footer {
+      margin-top: 15px;
+      font-size: 12px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Tính Điểm Sương & Độ Ẩm</h1>
+
+  <div class="input-group">
+    <img src="https://img.icons8.com/ios-filled/50/temperature.png" alt="Temperature Icon">
+    <input type="number" id="temperature" placeholder="Nhiệt độ không khí (°C)">
+  </div>
+
+  <div class="input-group">
+    <img src="https://img.icons8.com/ios-filled/50/humidity.png" alt="Humidity Icon">
+    <input type="number" id="humidity" placeholder="Độ ẩm tương đối (%)">
+  </div>
+
+  <div class="result" id="result">
+    Vui lòng nhập dữ liệu để xem kết quả.
+  </div>
+
+  <div class="footer">
+    © 2025 by Bạn
+  </div>
+</div>
+
+<script>
+function calculate() {
+  const T = parseFloat(document.getElementById('temperature').value);
+  const RH = parseFloat(document.getElementById('humidity').value);
+  const resultDiv = document.getElementById('result');
+
+  if (isNaN(T) || isNaN(RH) || RH < 0 || RH > 100) {
+    resultDiv.innerHTML = "Vui lòng nhập đúng nhiệt độ và độ ẩm (0 - 100%).";
+    return;
+  }
+
+  // Công thức tính điểm sương
+  const a = 17.27;
+  const b = 237.7;
+  const alpha = ((a * T) / (b + T)) + Math.log(RH/100);
+  const dewPoint = (b * alpha) / (a - alpha);
+
+  // Công thức tính độ ẩm tuyệt đối
+  const saturationVaporPressure = 6.112 * Math.exp((17.67 * T) / (T + 243.5));
+  const actualVaporPressure = RH / 100 * saturationVaporPressure;
+  const absoluteHumidity = (216.7 * actualVaporPressure) / (T + 273.15);
+
+  resultDiv.innerHTML = \`
+    <strong>Điểm sương:</strong> \${dewPoint.toFixed(2)} °C<br>
+    <strong>Độ ẩm tuyệt đối:</strong> \${absoluteHumidity.toFixed(2)} g/m³
+  \`;
+}
+
+// Sự kiện nhập số tự động tính
+document.getElementById('temperature').addEventListener('input', calculate);
+document.getElementById('humidity').addEventListener('input', calculate);
+</script>
+
+</body>
+</html>
