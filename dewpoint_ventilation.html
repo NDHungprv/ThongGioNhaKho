@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tính Toán Nhiệt Độ Điểm Sương và Thông Gió</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            margin: auto;
+        }
+        input[type="number"], input[type="text"], button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Tính Toán Nhiệt Độ Điểm Sương và Thông Gió</h1>
+        <label for="temp_inside">Nhiệt độ trong kho (°C):</label>
+        <input type="number" id="temp_inside" placeholder="Nhập nhiệt độ trong kho">
+        
+        <label for="humidity_inside">Độ ẩm trong kho (%):</label>
+        <input type="number" id="humidity_inside" placeholder="Nhập độ ẩm trong kho">
+        
+        <label for="temp_outside">Nhiệt độ ngoài kho (°C):</label>
+        <input type="number" id="temp_outside" placeholder="Nhập nhiệt độ ngoài kho">
+        
+        <label for="humidity_outside">Độ ẩm ngoài kho (%):</label>
+        <input type="number" id="humidity_outside" placeholder="Nhập độ ẩm ngoài kho">
+        
+        <button onclick="checkVentilation()">Kiểm Tra</button>
+        
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        function calculateDewPoint(temp, humidity) {
+            const A = 17.27;
+            const B = 237.7;
+            const alpha = ((A * temp) / (B + temp)) + Math.log(humidity / 100);
+            const dewPoint = (B * alpha) / (A - alpha);
+            return dewPoint;
+        }
+
+        function checkVentilation() {
+            const temp_inside = parseFloat(document.getElementById('temp_inside').value);
+            const humidity_inside = parseFloat(document.getElementById('humidity_inside').value);
+            const temp_outside = parseFloat(document.getElementById('temp_outside').value);
+            const humidity_outside = parseFloat(document.getElementById('humidity_outside').value);
+
+            if (isNaN(temp_inside) || isNaN(humidity_inside) || isNaN(temp_outside) || isNaN(humidity_outside)) {
+                document.getElementById('result').innerHTML = "Vui lòng nhập đầy đủ các giá trị!";
+                return;
+            }
+
+            const dewPoint_inside = calculateDewPoint(temp_inside, humidity_inside);
+            const dewPoint_outside = calculateDewPoint(temp_outside, humidity_outside);
+            
+            const weather_condition = "Thời tiết ngoài trời đảm bảo không có mưa, sương mù, gió cấp 4 trở lên";
+            const humidity_condition = humidity_outside < humidity_inside;
+            const temp_condition = temp_outside <= 32 && temp_outside >= 10;
+
+            const result_text = `
+                <h2>Kết quả:</h2>
+                <p>Nhiệt độ điểm sương trong kho: ${dewPoint_inside.toFixed(2)}°C</p>
+                <p>Nhiệt độ điểm sương ngoài kho: ${dewPoint_outside.toFixed(2)}°C</p>
+            `;
+            
+            if (humidity_condition && temp_condition) {
+                let ventilation_decision = "";
+                if (temp_outside > temp_inside && dewPoint_outside < dewPoint_inside) {
+                    ventilation_decision = "Có thể thông gió nhà kho.";
+                } else if (temp_outside < temp_inside && dewPoint_inside < dewPoint_outside) {
+                    ventilation_decision = "Có thể thông gió nhà kho.";
+                } else {
+                    ventilation_decision = "Không thể thông gió nhà kho.";
+                }
+                document.getElementById('result').innerHTML = result_text + "<p>" + ventilation_decision + "</p><p>" + weather_condition + "</p>";
+            } else {
+                document.getElementById('result').innerHTML = result_text + "<p>Điều kiện thông gió không được đáp ứng.</p>";
+            }
+        }
+    </script>
+
+</body>
+</html>
